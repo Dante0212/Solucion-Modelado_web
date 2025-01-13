@@ -1,0 +1,94 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Modelado de datos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="scroll-container">
+  <!-- Contenedor de Tablas -->
+  <div class="tablas-container">
+    <div *ngFor="let tabla of tablas">
+      <ion-card (click)="seleccionarTabla(tabla)" [ngClass]="{ 'tabla-seleccionada': tablaSeleccionada === tabla.table }">
+        <ion-card-header>
+          <ion-card-title>{{ tabla.table }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content *ngIf="tablaSeleccionada === tabla.table">
+          <ion-list cdkDropList (cdkDropListDropped)="onDrop($event)">
+            <ion-item *ngFor="let campo of tabla.fields" cdkDrag [cdkDragData]="campo" (click)="toggleCampo(campo)"
+                      [ngClass]="{ 'campo-seleccionado': camposSeleccionados.includes(campo) }">
+              <ion-checkbox slot="start" [checked]="camposSeleccionados.includes(campo)"></ion-checkbox>
+              {{ campo }}
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+
+  <!-- Contenedor de Filtros -->
+  <div class="filtros-container">
+    <form [formGroup]="filtrosForm">
+      <ion-list>
+        <ion-item *ngFor="let campo of camposSeleccionados">
+          <ion-label>{{ campo }}</ion-label>
+          <ion-input [formControlName]="campo" type="text" placeholder="Valor de filtro"></ion-input>
+          <ion-button fill="clear" (click)="eliminarFiltro(campo)">X</ion-button>
+        </ion-item>
+      </ion-list>
+      <ion-button (click)="aplicarFiltros()" expand="full">Aplicar Filtros</ion-button>
+    </form>
+  </div>
+
+  <!-- Contenedor de Datos -->
+  <div class="datos-container">
+    <ion-button (click)="cargarDatos()" expand="full">
+      <ion-icon name="cloud-download-outline" slot="start"></ion-icon>
+      Cargar Datos
+    </ion-button>
+
+    <!-- Tabla de datos con numeración -->
+    <ion-grid *ngIf="datos.length > 0">
+      <ion-row>
+        <!-- Columna para números -->
+        <ion-col class="header-col"><strong>#</strong></ion-col>
+
+        <!-- Encabezados de la tabla -->
+        <ion-col *ngFor="let campo of camposSeleccionados" class="header-col">
+          <strong>{{ campo }}</strong>
+        </ion-col>
+      </ion-row>
+
+      <!-- Filas de datos -->
+      <ion-row *ngFor="let item of datos; let i = index">
+        <!-- Número de fila -->
+        <ion-col>{{ i + 1 }}</ion-col>
+
+        <!-- Datos -->
+        <ion-col *ngFor="let campo of camposSeleccionados">
+          {{ item[campo] || 'N/A' }}
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <!-- Mensaje si no hay datos -->
+    <p *ngIf="datos.length === 0">No se encontraron datos para mostrar.</p>
+  </div>
+</ion-content>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

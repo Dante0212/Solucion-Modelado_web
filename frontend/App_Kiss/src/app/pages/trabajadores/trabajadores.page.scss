@@ -1,0 +1,212 @@
+/* Estilo para la fila de encabezados */
+.header-row {
+  background-color: #2d3e50; /* Color de fondo oscuro para mejor contraste */
+  color: #ffffff; /* Texto blanco para contraste */
+  font-weight: bold;
+  text-align: center;
+  padding: 8px 0;
+  border-radius: 5px;
+}
+
+.tablas-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px; /* Espacio entre las tarjetas */
+  padding: 10px;
+
+}
+
+/* Estilo general de las tarjetas */
+ion-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+ion-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 10px rgba(255, 255, 255, 0.979);
+}
+ion-card-title {
+  font-size: 1rem; /* Ajusta el tamaño del título */
+  white-space: nowrap; /* Evita que el texto se corte */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Agrega "..." si es muy largo */
+}
+
+/* Acordeón para tablas */
+ion-accordion-group {
+  --background: #f1f1f1; /* Fondo claro */
+  color: #333; /* Texto oscuro */
+}
+
+ion-item {
+  --background: #ffffff;
+  --color: #333; /* Texto oscuro */
+  border-bottom: 1px solid #e0e0e0;
+}
+
+ion-item:hover {
+  background-color: #e6e6e6; /* Fondo al pasar el ratón */
+}
+
+/* Botón para cargar datos */
+ion-button {
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+ion-button:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
+/* Checkbox de campos */
+ion-checkbox {
+  margin-right: 10px;
+}
+
+/* Estilo de la cuadrícula */
+ion-grid {
+  margin: 16px 0;
+  background-color: #000000;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+ion-row {
+  border-bottom: 1px solid #e0e0e0;
+  animation: fadeIn 0.5s ease;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+ion-col {
+  padding: 10px;
+  text-align: center;
+  word-wrap: break-word;
+}
+
+/* Mejoras para los campos seleccionados */
+.tabla-seleccionada {
+  background-color: #4caf50; /* Verde para tabla seleccionada */
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.campo-seleccionado {
+  background-color: #ff9800; /* Naranja para campo seleccionado */
+  color: #ffffff;
+  padding: 5px;
+  border-radius: 3px;
+}
+
+ion-item {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+
+  .campo-seleccionado {
+    background-color: #d4f4dd; /* Verde claro para campos seleccionados */
+    border-radius: 5px;
+  }
+
+  span {
+    pointer-events: none; /* Evita que el span reaccione a clics */
+    font-weight: bold;
+  }
+  .tabla-seleccionada {
+    font-weight: bold;
+    background-color: #e0e0e0;
+  }
+
+  .campo-seleccionado {
+    font-weight: bold;
+    background-color: #e0e0e0;
+  }
+  .tablas-container, .datos-container {
+    border: 1px solid red;
+  }
+  .datos-container {
+    padding: 15px;
+    background-color: #f9f9f9; /* Fondo suave para destacar la sección */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  ion-grid {
+    margin-top: 15px;
+    border-collapse: collapse;
+  }
+
+  ion-row {
+    display: flex;
+    align-items: center;
+  }
+
+  .header-col {
+    background-color: #4caf50; /* Color de encabezado */
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+  }
+
+  ion-col {
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #ddd;
+    background-color: #fff;
+  }
+
+  ion-row:nth-child(even) ion-col {
+    background-color: #f2f2f2; /* Alternar color de filas */
+  }
+
+  ion-row:hover ion-col {
+    background-color: #d9f9d9; /* Resaltar fila al pasar el mouse */
+  }
+
+  p {
+    text-align: center;
+    font-style: italic;
+    color: #666;
+  }
+
+  .filtros-container ion-button {
+    margin-top: 10px;
+  }
+
+  ion-input {
+    background-color: white;
+    border-radius: 4px;
+    padding: 8px;
+  }
+  ion-icon {
+    font-size: 20px;
+    margin-right: 8px;
+  }
+  body.dark-theme {
+    --ion-background-color: #121212;
+    --ion-text-color: #ffffff;
+    --ion-card-background-color: #1e1e1e;
+    --ion-item-background: #2a2a2a;
+  }
+
+  .dark-theme ion-card {
+    color: white;
+  }
+}
+
+
