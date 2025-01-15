@@ -1,9 +1,3 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Modelado de datos</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content class="scroll-container">
   <!-- Contenedor de Tablas -->
   <div class="tablas-container">
@@ -49,23 +43,33 @@
     <!-- Tabla de datos con numeración -->
     <ion-grid *ngIf="datos.length > 0">
       <ion-row>
-        <!-- Columna para números -->
-        <ion-col class="header-col"><strong>#</strong></ion-col>
-
-        <!-- Encabezados de la tabla -->
+        <!-- Encabezados de la tabla (sin columna de numeración) -->
         <ion-col *ngFor="let campo of camposSeleccionados" class="header-col">
           <strong>{{ campo }}</strong>
+        </ion-col>
+
+        <!-- Encabezados dinámicos para relaciones no previstas -->
+        <ion-col *ngFor="let key of obtenerRelaciones(datos[0])" class="header-col">
+          <strong>{{ key }}</strong>
         </ion-col>
       </ion-row>
 
       <!-- Filas de datos -->
       <ion-row *ngFor="let item of datos; let i = index">
-        <!-- Número de fila -->
-        <ion-col>{{ i + 1 }}</ion-col>
-
         <!-- Datos -->
         <ion-col *ngFor="let campo of camposSeleccionados">
-          {{ item[campo] || 'N/A' }}
+          <!-- Verifica si hay datos, de lo contrario no muestra nada -->
+          <ng-container *ngIf="item[campo]">
+            {{ item[campo] }}
+          </ng-container>
+        </ion-col>
+
+        <!-- Mostrar dinámicamente los datos relacionados -->
+        <ion-col *ngFor="let key of obtenerRelaciones(item)">
+          <!-- Verifica si el valor relacionado es válido, de lo contrario no muestra nada -->
+          <ng-container *ngIf="item[key]">
+            {{ item[key] }}
+          </ng-container>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -74,6 +78,14 @@
     <p *ngIf="datos.length === 0">No se encontraron datos para mostrar.</p>
   </div>
 </ion-content>
+
+
+
+
+
+
+
+
 
 
 

@@ -37,6 +37,7 @@ export class TrabajadoresPage implements OnInit {
       id_sol: [''],
       id_sol_id: [''],
       id_trabajador: [''],
+      nombre_emp_con: [''],
     });
   }
 
@@ -58,7 +59,7 @@ export class TrabajadoresPage implements OnInit {
 
   seleccionarCampo(campo: string) {
     if (!this.camposSeleccionados.includes(campo)) {
-      this.camposSeleccionados.push(campo);
+      this.camposSeleccionados = [...new Set([...this.camposSeleccionados, campo])];
       this.agregarCampoAlFormulario(campo);
     }
     console.log('Campos seleccionados:', this.camposSeleccionados);
@@ -76,11 +77,36 @@ export class TrabajadoresPage implements OnInit {
   }
 
   agregarCampoAlFormulario(campo: string) {
-    // Verificar si el campo ya existe en el formulario, si no, lo agregamos
-    if (!this.filtrosForm.contains(campo)) {
-      this.filtrosForm.addControl(campo, this.fb.control('')); // Añadir el campo al formulario con un valor vacío
+    const camposConRelaciones = [
+      ('')
+    ];
+
+    let campoFinal = campo;
+
+    // Añadimos '__' si el campo es una relación
+    if (camposConRelaciones.includes(campo)) {
+      campoFinal = `${campo}__`;
+      console.log(`Campo con relación detectado: ${campoFinal}`);
+    } else {
+      console.log(`Campo sin relación: ${campoFinal}`);
+    }
+
+    // Verificamos si el campo ya existe en el formulario antes de añadirlo
+    if (!this.filtrosForm.get(campoFinal)) {
+      this.filtrosForm.addControl(campoFinal, this.fb.control(''));
+      console.log(`Campo añadido al formulario: ${campoFinal}`);
+    } else {
+      console.log(`El campo ${campoFinal} ya existe en el formulario.`);
+    }
+
+    // Aseguramos que el campo no se agregue a camposSeleccionados más de una vez
+    if (!this.camposSeleccionados.includes(campoFinal)) {
+      this.camposSeleccionados.push(campoFinal);
     }
   }
+
+
+
 
   eliminarCampoDelFormulario(campo: string) {
     this.filtrosForm.removeControl(campo);
@@ -108,21 +134,30 @@ export class TrabajadoresPage implements OnInit {
       return;
     }
 
-    const filtros = this.obtenerFiltros(); // Obtenemos los filtros ingresados
-    const tabla = this.tablaSeleccionada;
-    const campos = this.camposSeleccionados;
+    // Asegúrate de eliminar cualquier campo innecesario
+    const camposSinDuplicados = Array.from(new Set(this.camposSeleccionados));
+    console.log('Campos sin duplicados antes de enviar:', camposSinDuplicados);
 
-    // Llamada al servicio para obtener los datos con los filtros aplicados
-    this.apiService.consultaTrabajadores(filtros, tabla, campos).subscribe(
+    // Llamada al servicio para obtener los datos
+    this.apiService.consultaTrabajadores(this.obtenerFiltros(), this.tablaSeleccionada, camposSinDuplicados).subscribe(
       (data) => {
+        // Asignar los datos obtenidos a la variable `datos`
         this.datos = data;
+
+        // Verificar la estructura de los datos y prepararlos para la vista
+        this.datos.forEach(item => {
+          // Aquí podrías agregar lógica adicional si necesitas procesar algún campo especial
+          // Por ejemplo, si tienes campos relacionados, podrías transformarlos de forma automática
+        });
+
         console.log('Datos obtenidos:', this.datos);
       },
       (error) => {
         console.error('Error al obtener los datos:', error);
       }
     );
-  }
+}
+
 
   eliminarFiltro(campo: string): void {
     this.filtrosForm.removeControl(campo);
@@ -139,7 +174,6 @@ export class TrabajadoresPage implements OnInit {
     }
     console.log('Columna eliminada:', campo);
   }
-
 
   // Manejo del drag and drop
   onDragStart(field: string) {
@@ -170,6 +204,7 @@ export class TrabajadoresPage implements OnInit {
 
     return filtros.slice(0, -1); // Elimina el último '&' si lo hay
   }
+
   aplicarFiltros() {
     const filtros: any = {};
 
@@ -184,10 +219,11 @@ export class TrabajadoresPage implements OnInit {
     console.log('Filtros antes de convertir:', filtros);  // Verifica el objeto filtros
 
     if (Object.keys(filtros).length > 0) {
+      // No generar el string de filtros manualmente, usa la función que ya tienes en el servicio
       const filtrosString = this.apiService.convertirFiltrosAString(filtros);
       console.log('Filtros convertidos a string:', filtrosString);  // Verifica el string generado
 
-      this.apiService.consultaTrabajadores(filtros, 'trabajadores',  this.camposSeleccionados)
+      this.apiService.consultaTrabajadores(filtros, 'trabajadores', this.camposSeleccionados)
         .subscribe(
           (data) => {
             console.log('Datos obtenidos:', data);
@@ -201,8 +237,20 @@ export class TrabajadoresPage implements OnInit {
       console.log('No se han proporcionado filtros válidos');
     }
   }
+  obtenerRelaciones(item: any): string[] {
+    const relaciones = [];
+    // Itera sobre las propiedades del objeto `item` y selecciona las que contienen relaciones
+    for (let key in item) {
+      if (item.hasOwnProperty(key) && key.includes('__')) { // Si el campo tiene un '__', es una relación
+        relaciones.push(key);
+      }
+    }
+    return relaciones;
+  }
+
 
 }
+
 
 
 

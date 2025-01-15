@@ -27,7 +27,9 @@ ion-card:hover {
   box-shadow: 0 6px 10px rgba(255, 255, 255, 0.979);
 }
 ion-card-title {
-  font-size: 1rem; /* Ajusta el tamaño del título */
+  font-size: 1.2rem; /* Aumento del tamaño del título */
+  font-weight: 900; /* Hacer el texto más negrito */
+  color: #e0dcdc; /* Un color más oscuro para mayor contraste */
   white-space: nowrap; /* Evita que el texto se corte */
   overflow: hidden;
   text-overflow: ellipsis; /* Agrega "..." si es muy largo */

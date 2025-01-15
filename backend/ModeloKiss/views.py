@@ -66,10 +66,16 @@ from django.http import JsonResponse
 from django.db.models import Q
 from django.core.exceptions import FieldError
 
+from django.db.models import Q
+from django.core.exceptions import FieldError
+from django.http import JsonResponse
+
+from django.core.exceptions import FieldError
+
 def consulta_trabajadores(request):
     filtros = request.GET.get('filtros', None)
     tabla = request.GET.get('tabla', None)
-    campos = request.GET.get('campos', '')  # Obtiene campos como cadena
+    campos = request.GET.get('campos', '')
 
     # Validar si se especificó la tabla
     if not tabla:
@@ -83,17 +89,16 @@ def consulta_trabajadores(request):
         'solicitud': Solicitud,
         'periodo': Periodo,
         'empresa_subcontratista': EmpresaSubcontratista,
-        'empresas_unidas': EmpresasUnidas
+        'empresas_unidas': EmpresasUnidas,
     }
 
-    # Validar si la tabla es válida
     if tabla not in tablas_validas:
         return JsonResponse({'error': 'Tabla no válida.'}, status=400)
 
     modelo = tablas_validas[tabla]
 
-    # Procesar campos
-    campos = [campo.strip() for campo in campos.split(',') if campo.strip()]
+    # Procesar campos relacionados
+    campos_mapeados = procesar_campos(request)
 
     # Construir filtro dinámico
     filtro_q = Q()
@@ -101,24 +106,44 @@ def consulta_trabajadores(request):
         try:
             filtros_dict = dict(f.split('=') for f in filtros.split('&') if '=' in f)
             for campo, valor in filtros_dict.items():
-                filtro_q &= Q(**{f"{campo}__icontains": valor})  # Busca coincidencias parciales
+                valores = [v.strip() for v in valor.split(',')]
+                filtro_q &= Q(**{f"{campo}__in": valores})
         except ValueError:
             return JsonResponse({'error': 'Formato inválido en filtros.'}, status=400)
 
-    # Filtrar los datos según la tabla seleccionada
+    # Filtrar datos y excluir relaciones nulas
     try:
-        queryset = modelo.objects.filter(filtro_q)
+        queryset = (
+            modelo.objects.filter(filtro_q)
+            .exclude(**{f"{campo}__isnull": True for campo in CAMPOS_RELACIONADOS.values()})
+            .select_related(*[campo.split('__')[0] for campo in CAMPOS_RELACIONADOS.values() if '__' in campo])
+            .values(*campos_mapeados)
+        )
     except FieldError as e:
         return JsonResponse({'error': f"Campo inválido: {str(e)}"}, status=400)
 
-    # Seleccionar campos específicos si se especifican
-    if campos:
-        try:
-            queryset = queryset.values(*campos)
-        except FieldError as e:
-            return JsonResponse({'error': f"Campo inválido: {str(e)}"}, status=400)
-
-    # Convertir a JSON
     data = list(queryset)
     return JsonResponse(data, safe=False)
+
+
+CAMPOS_RELACIONADOS = {
+    'id_sol': 'id_sol',  # ID de la solicitud asociada
+    'nombre_contrato_sol': 'id_sol__nombre_contrato_sol',  # Nombre del contrato en la solicitud
+    'nombre_emp_con': 'id_sol__id_emp_uni__rut_emp_con__nombre_emp_con',  # Nombre de la empresa contratista
+    'nombre_emp_pri': 'id_sol__id_emp_uni__rut_emp_pri__nombre_emp_pri',  # Nombre de la empresa principal
+    'nombre_emp_subcon': 'id_sol__id_emp_uni__rut_emp_subcon__nombre_emp_subcon',  # Nombre de la empresa subcontratista (opcional)
+}
+
+def procesar_campos(request):
+    campos = request.GET.get('campos', '').split(',')
+    campos_mapeados = []
+
+    for campo in campos:
+        if campo in CAMPOS_RELACIONADOS:
+            campos_mapeados.append(CAMPOS_RELACIONADOS[campo])
+        else:
+            campos_mapeados.append(campo)  # Campo directo
+
+    return campos_mapeados
+
 
